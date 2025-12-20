@@ -7,7 +7,12 @@ from .models import CustomUser, Article, Newsletter, Publisher
 
 
 class CustomUserCreationForm(UserCreationForm):
-    """Form for creating a new user with custom fields."""
+    """
+    Form for creating a new user with custom fields.
+    
+    Extends Django's UserCreationForm to include role selection,
+    profile information, and custom user fields.
+    """
     email = forms.EmailField(required=True)
     
     class Meta:
@@ -27,13 +32,22 @@ class CustomUserCreationForm(UserCreationForm):
 
 
 class LoginForm(forms.Form):
-    """Simple login form."""
+    """
+    Simple login form for user authentication.
+    
+    Collects username and password for user login.
+    """
     username = forms.CharField(max_length=150)
     password = forms.CharField(widget=forms.PasswordInput)
 
 
 class ArticleForm(forms.ModelForm):
-    """Form for creating/updating articles."""
+    """
+    Form for creating/updating articles.
+    
+    Allows journalists to create or edit articles with title, content,
+    summary, publisher selection, and featured image upload.
+    """
     
     class Meta:
         model = Article
@@ -54,7 +68,12 @@ class ArticleForm(forms.ModelForm):
 
 
 class ArticleApprovalForm(forms.ModelForm):
-    """Form for editors to approve articles."""
+    """
+    Form for editors to approve articles.
+    
+    Provides a simple checkbox interface for editors to approve
+    or reject pending articles submitted by journalists.
+    """
     
     class Meta:
         model = Article
@@ -65,7 +84,12 @@ class ArticleApprovalForm(forms.ModelForm):
 
 
 class PublisherForm(forms.ModelForm):
-    """Form for creating/updating publishers."""
+    """
+    Form for creating/updating publishers.
+    
+    Allows editors to create or edit publisher organizations with
+    name, description, logo, and website information.
+    """
 
     class Meta:
         model = Publisher
