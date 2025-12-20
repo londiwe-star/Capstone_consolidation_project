@@ -7,7 +7,12 @@ from django.core.exceptions import ValidationError
 
 
 class Publisher(models.Model):
-    """Model representing a news publisher organization."""
+    """
+    Model representing a news publisher organization.
+    
+    Publishers are news organizations that journalists can be affiliated with
+    and readers can subscribe to for content updates.
+    """
     name = models.CharField(max_length=200, unique=True)
     description = models.TextField(blank=True)
     logo = models.ImageField(upload_to='publishers/', blank=True, null=True)
@@ -135,7 +140,13 @@ class CustomUser(AbstractUser):
 
 
 class Article(models.Model):
-    """Model representing a news article."""
+    """
+    Model representing a news article.
+    
+    Articles are created by journalists and require editor approval
+    before being published. They can be associated with a publisher
+    or be independent journalist articles.
+    """
     title = models.CharField(max_length=300)
     content = models.TextField()
     summary = models.TextField(max_length=500, blank=True)
@@ -186,7 +197,13 @@ class Article(models.Model):
 
 
 class Newsletter(models.Model):
-    """Model representing a newsletter."""
+    """
+    Model representing a newsletter.
+    
+    Newsletters are content pieces created by journalists that can be
+    sent to subscribers. Similar to articles but designed for periodic
+    distribution.
+    """
     title = models.CharField(max_length=300)
     content = models.TextField()
     author = models.ForeignKey(
