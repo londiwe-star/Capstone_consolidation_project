@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ action }} Article - News Application{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+    <h1 class="card-title">{{ action }} Article</h1>
+    
+    <form method="post" enctype="multipart/form-data" class="card">
+        {% csrf_token %}
+        
+        {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}
+                    <small style="display: block; color: #6b7280; margin-top: 0.25rem;">{{ field.help_text }}</small>
+                {% endif %}
+                {% if field.errors %}
+                    <ul class="errorlist">
+                        {% for error in field.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+        {% endfor %}
+        
+        <div style="display: flex; gap: 1rem;">
+            <button type="submit" class="btn btn-primary">{{ action }} Article</button>
+            <a href="{% url 'journalist_dashboard' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

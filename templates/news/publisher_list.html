@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Publishers - News Application{% endblock %}
+
+{% block content %}
+<h1 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 2rem;">Publishers</h1>
+
+{% if publishers %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
+        {% for publisher in publishers %}
+            <div class="card">
+                {% if publisher.logo %}
+                    <img src="{{ publisher.logo.url }}" alt="{{ publisher.name }}"
+                         style="width: 100%; height: 150px; object-fit: contain; margin-bottom: 1rem;">
+                {% endif %}
+                
+                <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">
+                    <a href="{% url 'publisher_detail' publisher.pk %}" style="color: #1a1a1a; text-decoration: none;">
+                        {{ publisher.name }}
+                    </a>
+                </h3>
+                
+                {% if publisher.description %}
+                    <p style="color: #6b7280; margin-bottom: 1rem;">{{ publisher.description|truncatewords:15 }}</p>
+                {% endif %}
+                
+                <a href="{% url 'publisher_detail' publisher.pk %}" class="btn btn-primary" style="display: inline-block; padding: 0.5rem 1rem; font-size: 0.875rem;">
+                    View Articles
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p style="text-align: center; color: #6b7280; padding: 3rem;">No publishers found.</p>
+{% endif %}
+{% endblock %}

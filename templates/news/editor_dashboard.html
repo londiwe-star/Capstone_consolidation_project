@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Editor Dashboard - News Application{% endblock %}
+
+{% block content %}
+<h1 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 2rem;">Editor Dashboard</h1>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+    <!-- Pending Articles -->
+    <div>
+        <h2 style="font-size: 1.75rem; font-weight: 600; margin-bottom: 1.5rem;">
+            Pending Approval ({{ pending_articles.count }})
+        </h2>
+        
+        {% if pending_articles %}
+            <div style="display: grid; gap: 1.5rem;">
+                {% for article in pending_articles %}
+                    <div class="card">
+                        <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">
+                            {{ article.title }}
+                        </h3>
+                        
+                        <p style="color: #6b7280; font-size: 0.875rem; margin-bottom: 1rem;">
+                            By {{ article.author.get_full_name|default:article.author.username }}
+                            {% if article.publisher %} • {{ article.publisher.name }}{% endif %}
+                            • Submitted {{ article.created_at|date:"M d, Y" }}
+                        </p>
+                        
+                        {% if article.summary %}
+                            <p style="color: #4b5563; margin-bottom: 1rem;">{{ article.summary|truncatewords:25 }}</p>
+                        {% endif %}
+                        
+                        <div style="display: flex; gap: 1rem;">
+                            <a href="{% url 'article_approve' article.pk %}" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.875rem;">
+                                Review & Approve
+                            </a>
+                            <a href="{% url 'article_detail' article.pk %}" class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.875rem;">
+                                View Full Article
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p style="text-align: center; color: #6b7280; padding: 2rem; background: white; border-radius: 12px;">
+                No articles pending approval.
+            </p>
+        {% endif %}
+    </div>
+    
+    <!-- Recently Approved -->
+    <div>
+        <h2 style="font-size: 1.75rem; font-weight: 600; margin-bottom: 1.5rem;">Recently Approved</h2>
+        
+        {% if approved_articles %}
+            <div style="display: grid; gap: 1rem;">
+                {% for article in approved_articles %}
+                    <div class="card" style="padding: 1rem;">
+                        <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem;">
+                            <a href="{% url 'article_detail' article.pk %}" style="color: #1a1a1a; text-decoration: none;">
+                                {{ article.title|truncatewords:8 }}
+                            </a>
+                        </h4>
+                        <p style="color: #6b7280; font-size: 0.75rem;">
+                            {{ article.approved_at|date:"M d, Y" }}
+                        </p>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p style="text-align: center; color: #6b7280; padding: 1rem;">No approved articles yet.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

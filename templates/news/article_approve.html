@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Approve Article - News Application{% endblock %}
+
+{% block content %}
+<div style="max-width: 1000px; margin: 0 auto;">
+    <h1 class="card-title">Review Article</h1>
+    
+    <div class="card">
+        <h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem;">{{ article.title }}</h2>
+        
+        <p style="color: #6b7280; margin-bottom: 1rem;">
+            By {{ article.author.get_full_name|default:article.author.username }}
+            {% if article.publisher %} • {{ article.publisher.name }}{% endif %}
+        </p>
+        
+        {% if article.summary %}
+            <div style="background: #f3f4f6; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                <strong>Summary:</strong> {{ article.summary }}
+            </div>
+        {% endif %}
+        
+        <div style="margin-bottom: 2rem;">
+            {{ article.content|linebreaks }}
+        </div>
+        
+        <form method="post" style="border-top: 2px solid #e5e7eb; padding-top: 1.5rem;">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label>
+                    {{ form.is_approved }}
+                    <span style="margin-left: 0.5rem;">Approve this article for publication</span>
+                </label>
+                {% if form.is_approved.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.is_approved.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+            
+            <div style="display: flex; gap: 1rem;">
+                <button type="submit" class="btn btn-primary">Save Decision</button>
+                <a href="{% url 'editor_dashboard' %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

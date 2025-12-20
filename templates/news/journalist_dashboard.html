@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Journalist Dashboard - News Application{% endblock %}
+
+{% block content %}
+<h1 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 2rem;">My Articles</h1>
+
+<div style="margin-bottom: 2rem;">
+    <a href="{% url 'article_create' %}" class="btn btn-primary">Create New Article</a>
+</div>
+
+{% if articles %}
+    <div style="display: grid; gap: 1.5rem;">
+        {% for article in articles %}
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                    <div style="flex: 1;">
+                        <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">
+                            <a href="{% url 'article_detail' article.pk %}" style="color: #1a1a1a; text-decoration: none;">
+                                {{ article.title }}
+                            </a>
+                        </h3>
+                        
+                        <p style="color: #6b7280; font-size: 0.875rem;">
+                            {% if article.publisher %}{{ article.publisher.name }} • {% endif %}
+                            Created {{ article.created_at|date:"M d, Y" }}
+                        </p>
+                    </div>
+                    
+                    <div>
+                        {% if article.is_approved %}
+                            <span style="background: #d1fae5; color: #065f46; padding: 0.5rem 1rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 600;">
+                                ✓ Approved
+                            </span>
+                        {% else %}
+                            <span style="background: #fef3c7; color: #92400e; padding: 0.5rem 1rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 600;">
+                                ⏳ Pending
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                {% if article.summary %}
+                    <p style="color: #4b5563; margin-bottom: 1rem;">{{ article.summary|truncatewords:30 }}</p>
+                {% endif %}
+                
+                <div style="display: flex; gap: 1rem;">
+                    <a href="{% url 'article_detail' article.pk %}" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.875rem;">View</a>
+                    <a href="{% url 'article_update' article.pk %}" class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.875rem;">Edit</a>
+                    <a href="{% url 'article_delete' article.pk %}" class="btn btn-danger" style="padding: 0.5rem 1rem; font-size: 0.875rem;">Delete</a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p style="text-align: center; color: #6b7280; padding: 3rem;">
+        You haven't created any articles yet. <a href="{% url 'article_create' %}" style="color: #2563eb;">Create your first article</a>
+    </p>
+{% endif %}
+{% endblock %}

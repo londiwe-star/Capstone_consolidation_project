@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Register - News Application{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 2rem auto;">
+    <div class="card">
+        <h2 class="card-title">Create Account</h2>
+        
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <small style="display: block; color: #6b7280; margin-top: 0.25rem;">{{ field.help_text }}</small>
+                    {% endif %}
+                    {% if field.errors %}
+                        <ul class="errorlist">
+                            {% for error in field.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Create Account</button>
+        </form>
+        
+        <p style="text-align: center; margin-top: 1rem; color: #6b7280;">
+            Already have an account? <a href="{% url 'login' %}" style="color: #2563eb;">Login here</a>
+        </p>
+    </div>
+</div>
+{% endblock %}
