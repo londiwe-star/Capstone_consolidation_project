@@ -180,7 +180,8 @@ class Article(models.Model):
 
     def clean(self):
         """Validate that author is a journalist."""
-        if self.author and self.author.role != 'journalist':
+        # Use author_id to avoid triggering a RelatedObjectDoesNotExist when author isn't set yet
+        if self.author_id is not None and self.author.role != 'journalist':
             raise ValidationError({'author': 'Author must have the Journalist role.'})
 
 
