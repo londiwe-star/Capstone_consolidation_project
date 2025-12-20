@@ -36,13 +36,13 @@ A comprehensive news platform built with Django featuring role-based access cont
 
 ### 1. Clone or Extract the Project
 
-```bash
+\`\`\`bash
 cd news_project
-```
+\`\`\`
 
 ### 2. Create Virtual Environment
 
-```bash
+\`\`\`bash
 python -m venv venv
 
 # On Windows
@@ -50,29 +50,29 @@ venv\Scripts\activate
 
 # On Mac/Linux
 source venv/bin/activate
-```
+\`\`\`
 
 ### 3. Install Dependencies
 
-```bash
+\`\`\`bash
 pip install -r requirements.txt
-```
+\`\`\`
 
 ### 4. Configure Database
 
 Create a MariaDB database:
 
-```sql
+\`\`\`sql
 CREATE DATABASE news_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-```
+\`\`\`
 
 ### 5. Environment Configuration
 
 Copy `.env.example` to `.env` and configure your settings:
 
-```bash
+\`\`\`bash
 cp .env.example .env
-```
+\`\`\`
 
 Edit `.env` with your actual credentials:
 - Database credentials
@@ -81,16 +81,16 @@ Edit `.env` with your actual credentials:
 
 ### 6. Run Migrations
 
-```bash
+\`\`\`bash
 python manage.py makemigrations
 python manage.py migrate
-```
+\`\`\`
 
 ### 7. Create Superuser
 
-```bash
+\`\`\`bash
 python manage.py createsuperuser
-```
+\`\`\`
 
 ### 8. Create Initial Data (Optional)
 
@@ -100,9 +100,9 @@ Use the Django admin panel to create:
 
 ### 9. Run Development Server
 
-```bash
+\`\`\`bash
 python manage.py runserver
-```
+\`\`\`
 
 Visit `http://127.0.0.1:8000/` in your browser.
 
@@ -144,17 +144,17 @@ The REST API is available at `/api/` endpoints:
 **Authentication**: Basic Authentication or Session Authentication
 
 **Example Request:**
-```bash
+\`\`\`bash
 curl -u username:password http://127.0.0.1:8000/api/articles/
-```
+\`\`\`
 
 ## Running Tests
 
 Run the automated unit tests:
 
-```bash
+\`\`\`bash
 python manage.py test news
-```
+\`\`\`
 
 This will test:
 - API authentication
@@ -165,7 +165,7 @@ This will test:
 
 ## Project Structure
 
-```
+\`\`\`
 news_project/
 ├── news/                      # Main application
 │   ├── models.py             # Database models
@@ -187,7 +187,7 @@ news_project/
 ├── manage.py                # Django management script
 ├── requirements.txt         # Python dependencies
 └── README.md               # This file
-```
+\`\`\`
 
 ## Key Models
 
