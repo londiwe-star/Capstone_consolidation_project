@@ -30,14 +30,19 @@ A comprehensive news platform built with Django featuring role-based access cont
 ## Installation & Setup
 
 ### Prerequisites
-- Python 3.8+
-- MariaDB 10.5+
+- Python 3.8+ (for venv setup)
+- MariaDB 10.5+ (for local database)
 - pip (Python package manager)
+- Docker and Docker Compose (for Docker setup - optional)
+
+---
+
+## Method 1: Using Virtual Environment (venv)
 
 ### 1. Clone or Extract the Project
 
 \`\`\`bash
-cd news_project
+cd news-application-development
 \`\`\`
 
 ### 2. Create Virtual Environment
@@ -68,16 +73,38 @@ CREATE DATABASE news_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 ### 5. Environment Configuration
 
-Copy `.env.example` to `.env` and configure your settings:
+Create a `.env` file in the project root with the following variables:
 
 \`\`\`bash
-cp .env.example .env
+# Database Configuration
+DB_NAME=news_db
+DB_USER=your_db_user
+DB_PASSWORD=your_db_password
+DB_HOST=localhost
+DB_PORT=3306
+
+# Django Configuration
+SECRET_KEY=your-secret-key-here
+DEBUG=True
+ALLOWED_HOSTS=localhost,127.0.0.1
+
+# Email Configuration (Optional)
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USE_TLS=True
+EMAIL_HOST_USER=your-email@gmail.com
+EMAIL_HOST_PASSWORD=your-app-password
+DEFAULT_FROM_EMAIL=noreply@newsapp.com
+
+# Twitter API Configuration (Optional)
+TWITTER_API_KEY=your-api-key
+TWITTER_API_SECRET=your-api-secret
+TWITTER_ACCESS_TOKEN=your-access-token
+TWITTER_ACCESS_TOKEN_SECRET=your-access-token-secret
+TWITTER_BEARER_TOKEN=your-bearer-token
 \`\`\`
 
-Edit `.env` with your actual credentials:
-- Database credentials
-- Email configuration (for Gmail, use an App Password)
-- Twitter API credentials (optional, for posting to X)
+**Important**: Never commit the `.env` file to version control. It contains sensitive information.
 
 ### 6. Run Migrations
 
@@ -92,19 +119,66 @@ python manage.py migrate
 python manage.py createsuperuser
 \`\`\`
 
-### 8. Create Initial Data (Optional)
-
-Use the Django admin panel to create:
-- Publishers
-- Users with different roles (Reader, Journalist, Editor)
-
-### 9. Run Development Server
+### 8. Run Development Server
 
 \`\`\`bash
 python manage.py runserver
 \`\`\`
 
 Visit `http://127.0.0.1:8000/` in your browser.
+
+---
+
+## Method 2: Using Docker
+
+### 1. Clone or Extract the Project
+
+\`\`\`bash
+cd news-application-development
+\`\`\`
+
+### 2. Create Environment File
+
+Create a `.env` file in the project root (see Method 1, Step 5 for required variables).
+
+**Note**: For Docker, you may need to adjust `DB_HOST` to your database container name or host machine IP if using an external database.
+
+### 3. Build Docker Image
+
+\`\`\`bash
+docker build -t news-app .
+\`\`\`
+
+### 4. Run Docker Container
+
+\`\`\`bash
+docker run -d -p 8000:8000 --env-file .env --name news-app news-app
+\`\`\`
+
+Or if you need to mount volumes for media files:
+
+\`\`\`bash
+docker run -d -p 8000:8000 --env-file .env -v $(pwd)/media:/app/media --name news-app news-app
+\`\`\`
+
+### 5. Access the Application
+
+Visit `http://localhost:8000/` in your browser.
+
+### 6. Create Superuser (Inside Container)
+
+\`\`\`bash
+docker exec -it news-app python manage.py createsuperuser
+\`\`\`
+
+### 7. Stop and Remove Container
+
+\`\`\`bash
+docker stop news-app
+docker rm news-app
+\`\`\`
+
+**Note**: The Dockerfile runs migrations automatically on container start. For production use, you may want to modify the CMD to use a proper WSGI server like gunicorn.
 
 ## Usage Guide
 
