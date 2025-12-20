@@ -49,7 +49,6 @@ class CustomUser(AbstractUser):
         symmetrical=False,
         related_name='reader_subscribers',
         blank=True,
-        limit_choices_to={'role': 'journalist'},
         help_text='Journalists this reader is subscribed to'
     )
     
@@ -63,6 +62,7 @@ class CustomUser(AbstractUser):
 
     class Meta:
         ordering = ['username']
+        swappable = 'AUTH_USER_MODEL'
 
     def __str__(self):
         return f"{self.username} ({self.get_role_display()})"
@@ -70,9 +70,16 @@ class CustomUser(AbstractUser):
     def save(self, *args, **kwargs):
         """Override save to automatically assign user to appropriate group based on role."""
         is_new = self.pk is None
+        old_role = None
+        if not is_new:
+            try:
+                old_role = CustomUser.objects.get(pk=self.pk).role
+            except CustomUser.DoesNotExist:
+                pass
+        
         super().save(*args, **kwargs)
         
-        if is_new or 'role' in kwargs.get('update_fields', []):
+        if is_new or (old_role and old_role != self.role):
             self.assign_to_group()
 
     def assign_to_group(self):
@@ -85,7 +92,6 @@ class CustomUser(AbstractUser):
         group, created = Group.objects.get_or_create(name=group_name)
         
         if created:
-            # Set permissions for the group
             self.set_group_permissions(group, self.role)
         
         self.groups.add(group)
@@ -95,33 +101,37 @@ class CustomUser(AbstractUser):
         """Set appropriate permissions for a group based on role."""
         from django.contrib.contenttypes.models import ContentType
         
-        article_ct = ContentType.objects.get_for_model('news.Article')
-        newsletter_ct = ContentType.objects.get_for_model('news.Newsletter')
-        
-        if role == 'reader':
-            # Readers can only view articles and newsletters
-            permissions = Permission.objects.filter(
-                content_type__in=[article_ct, newsletter_ct],
-                codename__startswith='view_'
-            )
-        elif role == 'editor':
-            # Editors can view, change, and delete articles and newsletters
-            permissions = Permission.objects.filter(
-                content_type__in=[article_ct, newsletter_ct],
-                codename__in=[
-                    'view_article', 'change_article', 'delete_article',
-                    'view_newsletter', 'change_newsletter', 'delete_newsletter'
-                ]
-            )
-        elif role == 'journalist':
-            # Journalists can create, view, change, and delete articles and newsletters
-            permissions = Permission.objects.filter(
-                content_type__in=[article_ct, newsletter_ct]
-            )
-        else:
-            permissions = []
-        
-        group.permissions.set(permissions)
+        try:
+            article_ct = ContentType.objects.get(app_label='news', model='article')
+            newsletter_ct = ContentType.objects.get(app_label='news', model='newsletter')
+            
+            if role == 'reader':
+                # Readers can only view articles and newsletters
+                permissions = Permission.objects.filter(
+                    content_type__in=[article_ct, newsletter_ct],
+                    codename__startswith='view_'
+                )
+            elif role == 'editor':
+                # Editors can view, change, and delete articles and newsletters
+                permissions = Permission.objects.filter(
+                    content_type__in=[article_ct, newsletter_ct],
+                    codename__in=[
+                        'view_article', 'change_article', 'delete_article',
+                        'view_newsletter', 'change_newsletter', 'delete_newsletter'
+                    ]
+                )
+            elif role == 'journalist':
+                # Journalists can create, view, change, and delete articles and newsletters
+                permissions = Permission.objects.filter(
+                    content_type__in=[article_ct, newsletter_ct]
+                )
+            else:
+                permissions = []
+            
+            group.permissions.set(permissions)
+        except ContentType.DoesNotExist:
+            # Models don't exist yet during initial migration, skip permission setup
+            pass
 
 
 class Article(models.Model):
@@ -130,7 +140,7 @@ class Article(models.Model):
     content = models.TextField()
     summary = models.TextField(max_length=500, blank=True)
     author = models.ForeignKey(
-        CustomUser,
+        'CustomUser',
         on_delete=models.CASCADE,
         related_name='articles',
         limit_choices_to={'role': 'journalist'}
@@ -146,7 +156,7 @@ class Article(models.Model):
     featured_image = models.ImageField(upload_to='articles/', blank=True, null=True)
     is_approved = models.BooleanField(default=False)
     approved_by = models.ForeignKey(
-        CustomUser,
+        'CustomUser',
         on_delete=models.SET_NULL,
         related_name='approved_articles',
         null=True,
@@ -179,7 +189,7 @@ class Newsletter(models.Model):
     title = models.CharField(max_length=300)
     content = models.TextField()
     author = models.ForeignKey(
-        CustomUser,
+        'CustomUser',
         on_delete=models.CASCADE,
         related_name='newsletters',
         limit_choices_to={'role': 'journalist'}
