@@ -13,7 +13,32 @@
             {% for field in form %}
                 <div class="form-group">
                     <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                    {{ field }}
+                    {% if field.name == 'password1' or field.name == 'password2' %}
+                        <div style="position: relative; display: flex; align-items: center;">
+                            {{ field }}
+                            <button type="button"
+                                    aria-label="Toggle password visibility"
+                                    data-action="toggle-password"
+                                    data-target="{{ field.id_for_label }}"
+                                    style="position: absolute; right: 0.5rem; background: transparent; border: none; cursor: pointer; padding: 0.25rem; display: inline-flex; align-items: center;">
+                                <!-- Eye (show) icon -->
+                                <svg data-icon="show" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                                <!-- Eye-off (hide) icon -->
+                                <svg data-icon="hide" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+                                    <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a21.77 21.77 0 0 1 5.06-6.94"></path>
+                                    <path d="M1 1l22 22"></path>
+                                    <path d="M9.88 9.88A3 3 0 0 0 12 15a3 3 0 0 0 2.12-.88"></path>
+                                    <path d="M14.12 14.12 9.88 9.88"></path>
+                                    <path d="M21.94 8.06A10.94 10.94 0 0 0 12 4c-1.66 0-3.24.31-4.68.87"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    {% else %}
+                        {{ field }}
+                    {% endif %}
                     {% if field.help_text %}
                         <small style="display: block; color: #6b7280; margin-top: 0.25rem;">{{ field.help_text }}</small>
                     {% endif %}
@@ -35,4 +60,27 @@
         </p>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('click', function(e) {
+  const btn = e.target.closest('[data-action="toggle-password"]');
+  if (!btn) return;
+  const inputId = btn.getAttribute('data-target');
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  const showIcon = btn.querySelector('[data-icon="show"]');
+  const hideIcon = btn.querySelector('[data-icon="hide"]');
+  if (input.type === 'password') {
+    input.type = 'text';
+    if (showIcon) showIcon.style.display = 'none';
+    if (hideIcon) hideIcon.style.display = 'inline';
+  } else {
+    input.type = 'password';
+    if (showIcon) showIcon.style.display = 'inline';
+    if (hideIcon) hideIcon.style.display = 'none';
+  }
+});
+</script>
 {% endblock %}

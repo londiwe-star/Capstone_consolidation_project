@@ -3,7 +3,14 @@
 {% block title %}Publishers - News Application{% endblock %}
 
 {% block content %}
-<h1 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 2rem;">Publishers</h1>
+<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem;">
+    <h1 style="font-size: 2.5rem; font-weight: 700;">Publishers</h1>
+    {% if user.is_authenticated and user.role == 'editor' %}
+        <a href="{% url 'publisher_create' %}" class="btn btn-primary">Create Publisher</a>
+    {% endif %}
+    
+    
+</div>
 
 {% if publishers %}
     <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">

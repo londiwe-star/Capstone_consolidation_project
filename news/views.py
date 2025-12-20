@@ -10,7 +10,7 @@ from django.utils import timezone
 from .models import Article, Publisher, CustomUser, Newsletter
 from .forms import (
     CustomUserCreationForm, ArticleForm, 
-    LoginForm, ArticleApprovalForm
+    LoginForm, ArticleApprovalForm, PublisherForm
 )
 
 
@@ -302,6 +302,26 @@ def publisher_detail_view(request, pk):
         'is_subscribed': is_subscribed,
     }
     return render(request, 'news/publisher_detail.html', context)
+
+
+@login_required
+@permission_required('news.add_publisher', raise_exception=True)
+def publisher_create_view(request):
+    """Create a new publisher (editors only)."""
+    if request.user.role != 'editor':
+        messages.error(request, 'Only editors can create publishers.')
+        return redirect('publisher_list')
+
+    if request.method == 'POST':
+        form = PublisherForm(request.POST, request.FILES)
+        if form.is_valid():
+            publisher = form.save()
+            messages.success(request, f'Publisher "{publisher.name}" created successfully!')
+            return redirect('publisher_detail', pk=publisher.pk)
+    else:
+        form = PublisherForm()
+
+    return render(request, 'news/publisher_form.html', {'form': form, 'action': 'Create'})
 
 
 @login_required

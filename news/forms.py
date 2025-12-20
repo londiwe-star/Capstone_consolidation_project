@@ -3,7 +3,7 @@ Forms for the news application.
 """
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from .models import CustomUser, Article, Newsletter
+from .models import CustomUser, Article, Newsletter, Publisher
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -61,4 +61,15 @@ class ArticleApprovalForm(forms.ModelForm):
         fields = ['is_approved']
         widgets = {
             'is_approved': forms.CheckboxInput(),
+        }
+
+
+class PublisherForm(forms.ModelForm):
+    """Form for creating/updating publishers."""
+
+    class Meta:
+        model = Publisher
+        fields = ['name', 'description', 'logo', 'website']
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 3}),
         }

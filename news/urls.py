@@ -26,6 +26,7 @@ urlpatterns = [
     
     # Publishers
     path('publishers/', views.publisher_list_view, name='publisher_list'),
+    path('publishers/create/', views.publisher_create_view, name='publisher_create'),
     path('publishers/<int:pk>/', views.publisher_detail_view, name='publisher_detail'),
     path('publishers/<int:pk>/subscribe/', views.toggle_publisher_subscription, name='toggle_publisher_subscription'),
     
