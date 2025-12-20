@@ -1,5 +1,8 @@
 """
 URL configuration for news_project project.
+
+This module defines the root URL patterns for the Django project,
+including admin interface, main application routes, and API endpoints.
 """
 from django.contrib import admin
 from django.urls import path, include
