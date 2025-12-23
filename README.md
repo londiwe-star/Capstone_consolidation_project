@@ -22,7 +22,7 @@ A comprehensive news platform built with Django featuring role-based access cont
 ## Technology Stack
 
 - **Backend**: Django 4.2+
-- **Database**: MariaDB
+- **Database**: PostgreSQL (Docker) or MySQL/MariaDB (local development)
 - **API**: Django REST Framework
 - **Email**: Django Email System
 - **External APIs**: X (Twitter) API v2
@@ -31,7 +31,7 @@ A comprehensive news platform built with Django featuring role-based access cont
 
 ### Prerequisites
 - Python 3.8+ (for venv setup)
-- MariaDB 10.5+ (for local database)
+- PostgreSQL 12+ or MySQL/MariaDB 10.5+ (for local database)
 - pip (Python package manager)
 - Docker and Docker Compose (for Docker setup - optional)
 
@@ -65,7 +65,17 @@ pip install -r requirements.txt
 
 ### 4. Configure Database
 
-Create a MariaDB database:
+**Option A: PostgreSQL (Recommended)**
+
+Create a PostgreSQL database:
+
+\`\`\`sql
+CREATE DATABASE news_db;
+\`\`\`
+
+**Option B: MySQL/MariaDB**
+
+Create a MySQL/MariaDB database:
 
 \`\`\`sql
 CREATE DATABASE news_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -73,20 +83,53 @@ CREATE DATABASE news_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 ### 5. Environment Configuration
 
-Create a `.env` file in the project root with the following variables:
+Create a `.env` file in the project root. You can copy the example below:
 
+**For PostgreSQL:**
 \`\`\`bash
-# Database Configuration
+# Django Configuration
+SECRET_KEY=your-secret-key-here-change-in-production
+DEBUG=True
+ALLOWED_HOSTS=localhost,127.0.0.1
+
+# Database Configuration (PostgreSQL)
+DB_ENGINE=django.db.backends.postgresql
 DB_NAME=news_db
 DB_USER=your_db_user
 DB_PASSWORD=your_db_password
 DB_HOST=localhost
-DB_PORT=3306
+DB_PORT=5432
 
+# Email Configuration (Optional)
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USE_TLS=True
+EMAIL_HOST_USER=your-email@gmail.com
+EMAIL_HOST_PASSWORD=your-app-password
+DEFAULT_FROM_EMAIL=noreply@newsapp.com
+
+# Twitter API Configuration (Optional)
+TWITTER_API_KEY=your-api-key
+TWITTER_API_SECRET=your-api-secret
+TWITTER_ACCESS_TOKEN=your-access-token
+TWITTER_ACCESS_TOKEN_SECRET=your-access-token-secret
+TWITTER_BEARER_TOKEN=your-bearer-token
+\`\`\`
+
+**For MySQL/MariaDB:**
+\`\`\`bash
 # Django Configuration
-SECRET_KEY=your-secret-key-here
+SECRET_KEY=your-secret-key-here-change-in-production
 DEBUG=True
 ALLOWED_HOSTS=localhost,127.0.0.1
+
+# Database Configuration (MySQL/MariaDB)
+DB_ENGINE=django.db.backends.mysql
+DB_NAME=news_db
+DB_USER=root
+DB_PASSWORD=your_mysql_password
+DB_HOST=localhost
+DB_PORT=3306
 
 # Email Configuration (Optional)
 EMAIL_HOST=smtp.gmail.com
@@ -129,7 +172,9 @@ Visit `http://127.0.0.1:8000/` in your browser.
 
 ---
 
-## Method 2: Using Docker
+## Method 2: Using Docker Compose
+
+This method uses Docker Compose to run both the Django application and PostgreSQL database in containers. No manual database setup is required.
 
 ### 1. Clone or Extract the Project
 
@@ -139,46 +184,85 @@ cd news-application-development
 
 ### 2. Create Environment File
 
-Create a `.env` file in the project root (see Method 1, Step 5 for required variables).
-
-**Note**: For Docker, you may need to adjust `DB_HOST` to your database container name or host machine IP if using an external database.
-
-### 3. Build Docker Image
+Create a `.env` file in the project root with the following minimum required variables:
 
 \`\`\`bash
-docker build -t news-app .
+# Django Configuration
+SECRET_KEY=your-secret-key-here-change-in-production
+DEBUG=True
+ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0
+
+# Database Configuration (automatically set by docker-compose.yml)
+# These values should match the database service in docker-compose.yml
+DB_ENGINE=django.db.backends.postgresql
+DB_NAME=news_db
+DB_USER=news_user
+DB_PASSWORD=news_password
+DB_HOST=db
+DB_PORT=5432
+
+# Email Configuration (Optional)
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USE_TLS=True
+EMAIL_HOST_USER=your-email@gmail.com
+EMAIL_HOST_PASSWORD=your-app-password
+DEFAULT_FROM_EMAIL=noreply@newsapp.com
+
+# Twitter API Configuration (Optional)
+TWITTER_API_KEY=your-api-key
+TWITTER_API_SECRET=your-api-secret
+TWITTER_ACCESS_TOKEN=your-access-token
+TWITTER_ACCESS_TOKEN_SECRET=your-access-token-secret
+TWITTER_BEARER_TOKEN=your-bearer-token
 \`\`\`
 
-### 4. Run Docker Container
+**Note**: The database credentials (`DB_NAME`, `DB_USER`, `DB_PASSWORD`) should match the values in `docker-compose.yml`. The `DB_HOST` should be set to `db` (the service name in docker-compose.yml).
+
+### 3. Build and Run with Docker Compose
 
 \`\`\`bash
-docker run -d -p 8000:8000 --env-file .env --name news-app news-app
+docker-compose up --build
 \`\`\`
 
-Or if you need to mount volumes for media files:
+This single command will:
+- Build the Django application image
+- Start the PostgreSQL database container
+- Run database migrations automatically
+- Start the Django development server
+
+The application will be available at `http://localhost:8000/`
+
+### 4. Create Superuser (In a New Terminal)
+
+While the containers are running, open a new terminal and run:
 
 \`\`\`bash
-docker run -d -p 8000:8000 --env-file .env -v $(pwd)/media:/app/media --name news-app news-app
+docker-compose exec web python manage.py createsuperuser
 \`\`\`
 
-### 5. Access the Application
+### 5. Stop the Containers
 
-Visit `http://localhost:8000/` in your browser.
-
-### 6. Create Superuser (Inside Container)
+To stop the containers, press `Ctrl+C` in the terminal where docker-compose is running, or run:
 
 \`\`\`bash
-docker exec -it news-app python manage.py createsuperuser
+docker-compose down
 \`\`\`
 
-### 7. Stop and Remove Container
+### 6. Stop and Remove All Data (Including Database)
+
+To completely remove containers and volumes (including database data):
 
 \`\`\`bash
-docker stop news-app
-docker rm news-app
+docker-compose down -v
 \`\`\`
 
-**Note**: The Dockerfile runs migrations automatically on container start. For production use, you may want to modify the CMD to use a proper WSGI server like gunicorn.
+**Note**: The `docker-compose.yml` file automatically:
+- Sets up a PostgreSQL database container
+- Links the Django container to the database
+- Handles database migrations on startup
+- Persists database data in a Docker volume
+- Mounts media and static files for development
 
 ## Usage Guide
 
